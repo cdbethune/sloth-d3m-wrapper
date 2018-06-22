@@ -7,7 +7,7 @@ setup(name='SlothD3MWrapper',
     install_requires=["typing",
         "Sloth==1.0.0"],
     dependency_links=[
-        "git+https://github.com/NewKnowledge/sloth@caf91db91b79c4bcc07763faad7f38eb2ebf0b46#egg=Sloth-1.0.0"
+        "git+https://github.com/NewKnowledge/sloth@18c5f76939ae355e46c83a71117687076b7a5734#egg=Sloth-1.0.0"
     ],
     entry_points = {
         'd3m.primitives': [
