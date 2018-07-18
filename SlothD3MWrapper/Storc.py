@@ -107,18 +107,18 @@ class Storc(PrimitiveBase[Inputs, Outputs, Params, Hyperparams]):
             eps = 20
             min_samples = 2
         
-            Sloth = Sloth()
+            sloth = Sloth()
 
             rows,ncols = series.shape
 
-            SimilarityMatrix = Sloth.GenerateSimilarityMatrix(series)
+            SimilarityMatrix = sloth.GenerateSimilarityMatrix(series)
 
-            nclusters, labels, cnt = Sloth.ClusterSimilarityMatrix(SimilarityMatrix,eps,min_samples)
+            nclusters, labels, cnt = sloth.ClusterSimilarityMatrix(SimilarityMatrix,eps,min_samples)
 
             return list(labels)
         except:
             # Should probably do some more sophisticated error logging here
-            return "Failed predicting data frame"
+            return "Failed clustering time-series data frame"
 
 
 if __name__ == '__main__':
