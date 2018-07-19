@@ -1,3 +1,4 @@
+import sys
 import os.path
 import numpy as np
 import pandas
@@ -23,6 +24,12 @@ class Params(params.Params):
 
 
 class Hyperparams(hyperparams.Hyperparams):
+    eps = hyperparams.Uniform(lower=0.0, upper=sys.maxsize, default=20, semantic_types=[
+        'https://metadata.datadrivendiscovery.org/types/TuningParameter'
+    ])
+    min_samples = hyperparams.UniformInt(lower=1, upper=sys.maxsize, default=2, semantic_types=[
+        'https://metadata.datadrivendiscovery.org/types/TuningParameter'
+    ])
     pass
 
 class Storc(PrimitiveBase[Inputs, Outputs, Params, Hyperparams]):
@@ -104,8 +111,10 @@ class Storc(PrimitiveBase[Inputs, Outputs, Params, Hyperparams]):
         try:
             # setup model up
             # some hyper-parameters
-            eps = 20
-            min_samples = 2
+            eps = self.hyperparams['eps']
+            min_samples = self.hyperparams['min_samples']
+            #eps = 20
+            #min_samples = 2
         
             sloth = Sloth()
 
