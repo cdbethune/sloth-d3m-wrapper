@@ -14,7 +14,7 @@ from d3m import container, utils
 from d3m.metadata import hyperparams, base as metadata_base, params
 
 __author__ = 'Distil'
-__version__ = '1.0.0'
+__version__ = '2.0.0'
 
 Inputs = container.pandas.DataFrame
 Outputs = container.List
@@ -24,10 +24,7 @@ class Params(params.Params):
 
 
 class Hyperparams(hyperparams.Hyperparams):
-    eps = hyperparams.Uniform(lower=0.0, upper=sys.maxsize, default=20, semantic_types=[
-        'https://metadata.datadrivendiscovery.org/types/TuningParameter'
-    ])
-    min_samples = hyperparams.UniformInt(lower=1, upper=sys.maxsize, default=2, semantic_types=[
+    nclusters = hyperparams.UniformInt(lower=1, upper=sys.maxsize, default=3, semantic_types=[
         'https://metadata.datadrivendiscovery.org/types/TuningParameter'
     ])
     pass
@@ -111,18 +108,13 @@ class Storc(PrimitiveBase[Inputs, Outputs, Params, Hyperparams]):
         try:
             # setup model up
             # some hyper-parameters
-            eps = self.hyperparams['eps']
-            min_samples = self.hyperparams['min_samples']
-            #eps = 20
-            #min_samples = 2
+            nclusters = self.hyperparams['nclusters']
         
             sloth = Sloth()
 
             rows,ncols = series.shape
 
-            SimilarityMatrix = sloth.GenerateSimilarityMatrix(series)
-
-            nclusters, labels, cnt = sloth.ClusterSimilarityMatrix(SimilarityMatrix,eps,min_samples)
+            labels = Sloth.ClusterSeriesKMeans(series,nclusters)
 
             return list(labels)
         except:
@@ -132,6 +124,6 @@ class Storc(PrimitiveBase[Inputs, Outputs, Params, Hyperparams]):
 
 if __name__ == '__main__':
     client = simon(hyperparams={})
-    frame = pandas.read_csv("https://s3.amazonaws.com/d3m-data/merged_o_data/o_4550_merged.csv",dtype='str')
+    frame = pandas.read_csv("https://s3.amazonaws.com/d3m-data/merged_o_data/o_4550_merged.csv",dtype=str)
     result = client.produce(inputs = frame)
     print(result)
