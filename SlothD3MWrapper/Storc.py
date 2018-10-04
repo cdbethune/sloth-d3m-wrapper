@@ -63,16 +63,16 @@ class Storc(PrimitiveBase[Inputs, Outputs, Params, Hyperparams]):
         ],
         'primitive_family': metadata_base.PrimitiveFamily.TIME_SERIES_SEGMENTATION,
     })
-    
+
     def __init__(self, *, hyperparams: Hyperparams, random_seed: int = 0)-> None:
         super().__init__(hyperparams=hyperparams, random_seed=random_seed)
-                
+
         self._decoder = JSONDecoder()
         self._params = {}
 
     def fit(self) -> None:
         pass
-    
+
     def get_params(self) -> Params:
         return self._params
 
@@ -81,45 +81,28 @@ class Storc(PrimitiveBase[Inputs, Outputs, Params, Hyperparams]):
 
     def set_training_data(self, *, inputs: Inputs, outputs: Outputs) -> None:
         pass
-        
+
     def produce(self, *, inputs: Inputs, timeout: float = None, iterations: int = None) -> CallResult[Outputs]:
         """
         Produce primitive's best guess for the structural type of each input column.
-        
+
         Parameters
         ----------
-        inputs : Input pandas frame
+        inputs : Input pandas frame where each row is a series.  Series timestamps are store in the column names.
 
         Returns
         -------
         Outputs
-            The outputs is two lists of lists, each has length equal to number of columns in input pandas frame. 
-            Each entry of the first one is a list of strings corresponding to each column's multi-label classification.
-            Each entry of the second one is a list of floats corresponding to prediction probabilities.
+            The output is a dataframe containing a single column where each entry is the associated series' cluster number.
         """
-        
-        """ Accept a pandas data frame, predicts column types in it
-        frame: a pandas data frame containing the data to be processed
-        -> a list of two lists of lists of 1) column labels and then 2) prediction probabilities
-        """
-        
-        series = inputs
+        # setup model up
+        sloth = Sloth()
 
-        try:
-            # setup model up
-            # some hyper-parameters
-            nclusters = self.hyperparams['nclusters']
-        
-            sloth = Sloth()
+        # set number of clusters for k-means
+        nclusters = self.hyperparams['nclusters']
 
-            rows,ncols = series.shape
-
-            labels = Sloth.ClusterSeriesKMeans(series,nclusters)
-
-            return list(labels)
-        except:
-            # Should probably do some more sophisticated error logging here
-            return "Failed clustering time-series data frame"
+        labels = sloth.ClusterSeriesKMeans(series.values, nclusters)
+        return CallResult(pandas.DataFrame(labels))
 
 
 if __name__ == '__main__':
