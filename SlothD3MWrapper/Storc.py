@@ -101,7 +101,7 @@ class Storc(PrimitiveBase[Inputs, Outputs, Params, Hyperparams]):
         # set number of clusters for k-means
         nclusters = self.hyperparams['nclusters']
 
-        labels = sloth.ClusterSeriesKMeans(series.values, nclusters)
+        labels = sloth.ClusterSeriesKMeans(inputs.values, nclusters)
         return CallResult(pandas.DataFrame(labels))
 
 
