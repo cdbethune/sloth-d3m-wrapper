@@ -17,7 +17,7 @@ __author__ = 'Distil'
 __version__ = '2.0.0'
 
 Inputs = container.pandas.DataFrame
-Outputs = container.List
+Outputs = container.pandas.DataFrame
 
 class Params(params.Params):
     pass
@@ -49,6 +49,11 @@ class Storc(PrimitiveBase[Inputs, Outputs, Params, Hyperparams]):
         # install a Python package first to be even able to run setup.py of another package. Or you have
         # a dependency which is not on PyPi.
          'installation': [{
+            'type': metadata_base.PrimitiveInstallationType.PIP,
+            'package': 'cython',
+            'version': '0.28.5',
+            ),
+        },{
             'type': metadata_base.PrimitiveInstallationType.PIP,
             'package_uri': 'git+https://github.com/NewKnowledge/sloth-d3m-wrapper.git@{git_commit}#egg=SlothD3MWrapper'.format(
                 git_commit=utils.current_git_commit(os.path.dirname(__file__)),
@@ -106,7 +111,7 @@ class Storc(PrimitiveBase[Inputs, Outputs, Params, Hyperparams]):
 
 
 if __name__ == '__main__':
-    client = simon(hyperparams={})
-    frame = pandas.read_csv("https://s3.amazonaws.com/d3m-data/merged_o_data/o_4550_merged.csv",dtype=str)
+    client = Storc(hyperparams={'nclusters':6})
+    frame = pandas.read_csv("path/csv_containing_one_series_per_row.csv",dtype=str)
     result = client.produce(inputs = frame)
     print(result)
