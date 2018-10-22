@@ -52,7 +52,6 @@ class Storc(PrimitiveBase[Inputs, Outputs, Params, Hyperparams]):
             'type': metadata_base.PrimitiveInstallationType.PIP,
             'package': 'cython',
             'version': '0.28.5',
-            ),
         },{
             'type': metadata_base.PrimitiveInstallationType.PIP,
             'package_uri': 'git+https://github.com/NewKnowledge/sloth-d3m-wrapper.git@{git_commit}#egg=SlothD3MWrapper'.format(
