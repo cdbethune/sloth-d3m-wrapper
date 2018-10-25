@@ -5,9 +5,9 @@ setup(name='SlothD3MWrapper',
     description='A thin wrapper for interacting with New Knowledge time series tool library Sloth',
     packages=['SlothD3MWrapper'],
     install_requires=["typing",
-        "Sloth==2.0.0"],
+        "Sloth>=2.0.0"],
     dependency_links=[
-        "git+https://github.com/NewKnowledge/sloth@d38b8892fbefb4425d211d2cd858cfad91a2113e#egg=Sloth-2.0.0"
+        "git+https://github.com/NewKnowledge/sloth@d48df2844b31f0e08e296b9ba795eab7d8e487fb#egg=Sloth-2.0.1"
     ],
     entry_points = {
         'd3m.primitives': [
