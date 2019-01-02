@@ -22,8 +22,8 @@ __version__ = '2.0.0'
 Inputs = container.pandas.DataFrame
 Outputs = container.pandas.DataFrame
 
-class Hyperparams(hyperparams.Hyperparams):
-    nclusters = hyperparams.UniformInt(lower=1, upper=sys.maxsize, default=3, semantic_types=[
+class Hyperparams(metadata_base.Hyperparams):
+    nclusters = metadata_base.UniformInt(lower=1, upper=sys.maxsize, default=3, semantic_types=[
         'https://metadata.datadrivendiscovery.org/types/TuningParameter'
     ])
     pass
