@@ -7,23 +7,20 @@ import typing
 from Sloth import Sloth
 from tslearn.datasets import CachedDatasets
 
-from d3m.primitive_interfaces.base import PrimitiveBase, CallResult
+from d3m.primitive_interfaces.transformer import TransformerPrimitiveBase
+from d3m.primitive_interfaces.base import CallResult
 
 from d3m import container, utils
 from d3m.container import DataFrame as d3m_DataFrame
-from d3m.metadata import hyperparams, base as metadata_base, params
+from d3m.metadata import hyperparams, base as metadata_base
 
 from common_primitives import utils as utils_cp
 
 __author__ = 'Distil'
-__version__ = '2.0.0'
+__version__ = '2.0.1'
 
 Inputs = container.pandas.DataFrame
 Outputs = container.pandas.DataFrame
-
-class Params(params.Params):
-    pass
-
 
 class Hyperparams(hyperparams.Hyperparams):
     nclusters = hyperparams.UniformInt(lower=1, upper=sys.maxsize, default=3, semantic_types=[
@@ -31,7 +28,7 @@ class Hyperparams(hyperparams.Hyperparams):
     ])
     pass
 
-class Storc(PrimitiveBase[Inputs, Outputs, Params, Hyperparams]):
+class Storc(TransformerPrimitiveBase[Inputs, Outputs, Hyperparams]):
     metadata = metadata_base.PrimitiveMetadata({
         # Simply an UUID generated once and fixed forever. Generated using "uuid.uuid4()".
         'id': "77bf4b92-2faa-3e38-bb7e-804131243a7f",
@@ -72,20 +69,6 @@ class Storc(PrimitiveBase[Inputs, Outputs, Params, Hyperparams]):
 
     def __init__(self, *, hyperparams: Hyperparams, random_seed: int = 0)-> None:
         super().__init__(hyperparams=hyperparams, random_seed=random_seed)
-
-        self._params = {}
-
-    def fit(self) -> None:
-        pass
-
-    def get_params(self) -> Params:
-        return self._params
-
-    def set_params(self, *, params: Params) -> None:
-        self.params = params
-
-    def set_training_data(self, *, inputs: Inputs, outputs: Outputs) -> None:
-        pass
 
     def produce(self, *, inputs: Inputs, timeout: float = None, iterations: int = None) -> CallResult[Outputs]:
         """
