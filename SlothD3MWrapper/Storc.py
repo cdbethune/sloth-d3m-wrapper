@@ -17,7 +17,7 @@ from d3m.metadata import hyperparams, base as metadata_base
 from common_primitives import utils as utils_cp
 
 __author__ = 'Distil'
-__version__ = '2.0.0'
+__version__ = '2.0.1'
 
 Inputs = container.pandas.DataFrame
 Outputs = container.pandas.DataFrame
