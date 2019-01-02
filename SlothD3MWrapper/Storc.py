@@ -5,6 +5,7 @@ import pandas
 import typing
 
 from Sloth import Sloth
+from tslearn.datasets import CachedDatasets
 
 from d3m.primitive_interfaces.base import PrimitiveBase, CallResult
 
@@ -106,6 +107,7 @@ class Storc(PrimitiveBase[Inputs, Outputs, Params, Hyperparams]):
         nclusters = self.hyperparams['nclusters']
 
         labels = sloth.ClusterSeriesKMeans(inputs.values, nclusters)
+        print(pandas.DataFrame(labels).head())
         out_df_sloth = CallResult(pandas.DataFrame(labels))
         out_df_sloth.columns = ['labels']
 
@@ -128,6 +130,7 @@ class Storc(PrimitiveBase[Inputs, Outputs, Params, Hyperparams]):
 if __name__ == '__main__':
     print('test')
     client = Storc(hyperparams={'nclusters':6})
-    frame = pandas.read_csv("path/csv_containing_one_series_per_row.csv",dtype=str)
+    #frame = pandas.read_csv("path/csv_containing_one_series_per_row.csv",dtype=str)
+    frame = CachedDatasets().load_dataset("Trace")
     result = client.produce(inputs = frame)
     print(result)
