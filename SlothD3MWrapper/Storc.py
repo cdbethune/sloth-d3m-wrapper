@@ -128,7 +128,6 @@ class Storc(PrimitiveBase[Inputs, Outputs, Params, Hyperparams]):
         return CallResult(sloth_df)
 
 if __name__ == '__main__':
-    print('test')
     client = Storc(hyperparams={'nclusters':6})
     #frame = pandas.read_csv("path/csv_containing_one_series_per_row.csv",dtype=str)
     frame = CachedDatasets().load_dataset("Trace")
