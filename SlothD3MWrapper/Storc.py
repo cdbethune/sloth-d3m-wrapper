@@ -12,7 +12,7 @@ from d3m.primitive_interfaces.base import CallResult
 
 from d3m import container, utils
 from d3m.container import DataFrame as d3m_DataFrame
-from d3m.metadata import hyperparams as metadata_base
+from d3m.metadata import hyperparams, base as metadata_base, params
 
 from common_primitives import utils as utils_cp
 
@@ -22,13 +22,13 @@ __version__ = '2.0.0'
 Inputs = container.pandas.DataFrame
 Outputs = container.pandas.DataFrame
 
-class Hyperparams(metadata_base.Hyperparams):
-    nclusters = metadata_base.UniformInt(lower=1, upper=sys.maxsize, default=3, semantic_types=[
+class Hyperparams(hyperparams.Hyperparams):
+    nclusters = hyperparams.UniformInt(lower=1, upper=sys.maxsize, default=3, semantic_types=[
         'https://metadata.datadrivendiscovery.org/types/TuningParameter'
     ])
     pass
 
-class Storc(TransformerPrimitiveBase[Inputs, Outputs, Hyperparams]):
+class Storc(TransformerPrimitiveBase[Inputs, Outputs, None, Hyperparams]):
     metadata = metadata_base.PrimitiveMetadata({
         # Simply an UUID generated once and fixed forever. Generated using "uuid.uuid4()".
         'id': "77bf4b92-2faa-3e38-bb7e-804131243a7f",
