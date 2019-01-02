@@ -132,5 +132,5 @@ if __name__ == '__main__':
     client = Storc(hyperparams={'nclusters':6})
     #frame = pandas.read_csv("path/csv_containing_one_series_per_row.csv",dtype=str)
     frame = CachedDatasets().load_dataset("Trace")
-    result = client.produce(inputs = pandas.DataFrame(frame[0]))
+    result = client.produce(inputs = pandas.DataFrame(frame[0].reshape((100,275))))
     print(result)
