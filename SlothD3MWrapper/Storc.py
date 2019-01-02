@@ -3,15 +3,17 @@ import os.path
 import numpy as np
 import pandas
 import typing
-from json import JSONDecoder
-from typing import List
 
 from Sloth import Sloth
+from tslearn.datasets import CachedDatasets
 
 from d3m.primitive_interfaces.base import PrimitiveBase, CallResult
 
 from d3m import container, utils
+from d3m.container import DataFrame as d3m_DataFrame
 from d3m.metadata import hyperparams, base as metadata_base, params
+
+from common_primitives import utils as utils_cp
 
 __author__ = 'Distil'
 __version__ = '2.0.0'
@@ -71,7 +73,6 @@ class Storc(PrimitiveBase[Inputs, Outputs, Params, Hyperparams]):
     def __init__(self, *, hyperparams: Hyperparams, random_seed: int = 0)-> None:
         super().__init__(hyperparams=hyperparams, random_seed=random_seed)
 
-        self._decoder = JSONDecoder()
         self._params = {}
 
     def fit(self) -> None:
@@ -106,11 +107,28 @@ class Storc(PrimitiveBase[Inputs, Outputs, Params, Hyperparams]):
         nclusters = self.hyperparams['nclusters']
 
         labels = sloth.ClusterSeriesKMeans(inputs.values, nclusters)
-        return CallResult(pandas.DataFrame(labels))
+        out_df_sloth = pandas.DataFrame(labels)
+        out_df_sloth.columns = ['labels']
 
+        # initialize the output dataframe as input dataframe (results will be appended to it)
+        # out_df = d3m_DataFrame(inputs)
+
+        sloth_df = d3m_DataFrame(out_df_sloth)
+        # first column ('labels')
+        col_dict = dict(sloth_df.metadata.query((metadata_base.ALL_ELEMENTS, 0)))
+        col_dict['structural_type'] = type("1")
+        col_dict['name'] = 'labels'
+        col_dict['semantic_types'] = ('http://schema.org/Integer', 'https://metadata.datadrivendiscovery.org/types/Attribute')
+        sloth_df.metadata = sloth_df.metadata.update((metadata_base.ALL_ELEMENTS, 0), col_dict)
+
+        # concatentate final output frame -- not real consensus from program, so commenting out for now
+        # out_df = utils_cp.append_columns(out_df, sloth_df)
+
+        return CallResult(sloth_df)
 
 if __name__ == '__main__':
     client = Storc(hyperparams={'nclusters':6})
-    frame = pandas.read_csv("path/csv_containing_one_series_per_row.csv",dtype=str)
-    result = client.produce(inputs = frame)
+    #frame = pandas.read_csv("path/csv_containing_one_series_per_row.csv",dtype=str)
+    frame = CachedDatasets().load_dataset("Trace")
+    result = client.produce(inputs = pandas.DataFrame(frame[0].reshape((100,275))))
     print(result)
