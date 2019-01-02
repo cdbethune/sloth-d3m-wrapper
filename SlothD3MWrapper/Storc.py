@@ -7,7 +7,7 @@ import typing
 from Sloth import Sloth
 from tslearn.datasets import CachedDatasets
 
-from d3m.primitive_interfaces.transfromer import TransformerPrimitiveBase
+from d3m.primitive_interfaces.transformer import TransformerPrimitiveBase
 from d3m.primitive_interfaces.base import CallResult
 
 from d3m import container, utils
