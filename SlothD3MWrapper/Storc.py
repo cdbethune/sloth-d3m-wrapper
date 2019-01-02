@@ -10,7 +10,7 @@ from tslearn.datasets import CachedDatasets
 from d3m.primitive_interfaces.transformer import TransformerPrimitiveBase
 from d3m.primitive_interfaces.base import CallResult
 
-from d3m import container, utils
+from d3m import container, utilsHyperparams
 from d3m.container import DataFrame as d3m_DataFrame
 from d3m.metadata import hyperparams, base as metadata_base, params
 
@@ -28,7 +28,7 @@ class Hyperparams(hyperparams.Hyperparams):
     ])
     pass
 
-class Storc(TransformerPrimitiveBase[Inputs, Outputs, None, Hyperparams]):
+class Storc(TransformerPrimitiveBase[Inputs, Outputs, Hyperparams]):
     metadata = metadata_base.PrimitiveMetadata({
         # Simply an UUID generated once and fixed forever. Generated using "uuid.uuid4()".
         'id': "77bf4b92-2faa-3e38-bb7e-804131243a7f",
