@@ -108,7 +108,6 @@ class Storc(PrimitiveBase[Inputs, Outputs, Params, Hyperparams]):
 
         labels = sloth.ClusterSeriesKMeans(inputs.values, nclusters)
         out_df_sloth = pandas.DataFrame(labels)
-        print(out_df_sloth)
         out_df_sloth.columns = ['labels']
 
         # initialize the output dataframe as input dataframe (results will be appended to it)
