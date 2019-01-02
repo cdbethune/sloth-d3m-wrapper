@@ -28,7 +28,7 @@ class Hyperparams(metadata_base.Hyperparams):
     ])
     pass
 
-class Storc(TransformerPrimitiveBase[Inputs, Outputs, None, Hyperparams]):
+class Storc(TransformerPrimitiveBase[Inputs, Outputs, Hyperparams]):
     metadata = metadata_base.PrimitiveMetadata({
         # Simply an UUID generated once and fixed forever. Generated using "uuid.uuid4()".
         'id': "77bf4b92-2faa-3e38-bb7e-804131243a7f",
