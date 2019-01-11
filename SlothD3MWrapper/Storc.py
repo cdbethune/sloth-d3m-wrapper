@@ -13,8 +13,10 @@ from d3m.primitive_interfaces.base import CallResult
 from d3m import container, utils
 from d3m.container import DataFrame as d3m_DataFrame
 from d3m.metadata import hyperparams, base as metadata_base
-
+from d3m.primitives.datasets import DatasetToDataFrame
 from common_primitives import utils as utils_cp
+
+from timeseriesloader.timeseries_loader import TimeSeriesLoaderPrimitive
 
 __author__ = 'Distil'
 __version__ = '2.0.1'
@@ -110,8 +112,19 @@ class Storc(TransformerPrimitiveBase[Inputs, Outputs, Hyperparams]):
         return CallResult(sloth_df)
 
 if __name__ == '__main__':
-    client = Storc(hyperparams={'nclusters':6})
+    # Load data and preprocessing
+    input_dataset = container.Dataset.load('file:///data/home/jgleason/D3m/datasets/seed_datasets_current/66_chlorineConcentration/66_chlorineConcentration_dataset/tables/learningData.csv')
+    ds2df_client = DatasetToDataFrame(hyperparams = {"dataframe_resource":"0"})
+    df = d3m_DataFrame(ds2df_client.produce(inputs = input_dataset).value)    
+    ts_loader = TimeSeriesLoaderPrimitive(hyperparams = {"time_col_index":0, "value_col_index":1,"file_col_index":1})
+    metadata_dict = dict(df.metadata.query_column(ts_loader.hyperparams['file_col_index']))
+    metadata_dict['semantic_types'] = ('https://metadata.datadrivendiscovery.org/types/FileName', 'https://metadata.datadrivendiscovery.org/types/Timeseries')
+    metadata_dict['media_types'] = ('text/csv',)
+    metadata_dict['location_base_uris'] = ('file:///data/home/jgleason/D3m/datasets/seed_datasets_current/66_chlorineConcentration/66_chlorineConcentration_dataset/timeseries/',)
+    df.metadata = df.metadata.update_column(ts_loader.hyperparams['file_col_index'], metadata_dict)
+    ts_values = ts_loader.produce(inputs = df)	    
+
+    storc_client = Storc(hyperparams={'nclusters':4})
     #frame = pandas.read_csv("path/csv_containing_one_series_per_row.csv",dtype=str)
-    frame = CachedDatasets().load_dataset("Trace")
-    result = client.produce(inputs = pandas.DataFrame(frame[0].reshape((100,275))))
-    print(result)
+    result = storc_client.produce(inputs = ts_values.value.head(100))
+    print(result.value)
