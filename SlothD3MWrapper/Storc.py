@@ -13,8 +13,10 @@ from d3m.primitive_interfaces.base import CallResult
 from d3m import container, utils
 from d3m.container import DataFrame as d3m_DataFrame
 from d3m.metadata import hyperparams, base as metadata_base
-
+from d3m.primitives.datasets import DatasetToDataFrame
 from common_primitives import utils as utils_cp
+
+from timeseriesloader.timeseries_loader import TimeSeriesLoaderPrimitive
 
 __author__ = 'Distil'
 __version__ = '2.0.1'
@@ -23,9 +25,21 @@ Inputs = container.pandas.DataFrame
 Outputs = container.pandas.DataFrame
 
 class Hyperparams(hyperparams.Hyperparams):
-    nclusters = hyperparams.UniformInt(lower=1, upper=sys.maxsize, default=3, semantic_types=[
-        'https://metadata.datadrivendiscovery.org/types/TuningParameter'
-    ])
+    algorithm = hyperparams.Enumeration(default = 'GlobalAlignmentKernelKMeans', 
+        semantic_types = ['https://metadata.datadrivendiscovery.org/types/ControlParameter'],
+        values = ['GlobalAlignmentKernelKMeans', 'TimeSeriesKMeans', 'DBSCAN', 'HDBSCAN'],
+        description = 'type of clustering algorithm to use')
+    nclusters = hyperparams.UniformInt(lower=1, upper=sys.maxsize, default=3, semantic_types=
+        ['https://metadata.datadrivendiscovery.org/types/TuningParameter'], description = 'number of clusters \
+        to user in kernel kmeans algorithm')
+    eps = hyperparams.Uniform(lower=0, upper=sys.maxsize, default = 0.5, semantic_types = 
+        ['https://metadata.datadrivendiscovery.org/types/TuningParameter'], 
+        description = 'maximum distance between two samples for them to be considered as in the same neigborhood, \
+        used in DBSCAN algorithm')
+    min_samples = hyperparams.UniformInt(lower=1, upper=sys.maxsize, default = 5, semantic_types = 
+        ['https://metadata.datadrivendiscovery.org/types/TuningParameter'], 
+        description = 'number of samples in a neighborhood for a point to be considered as a core point, \
+        used in DBSCAN and HDBSCAN algorithms')   
     pass
 
 class Storc(TransformerPrimitiveBase[Inputs, Outputs, Hyperparams]):
@@ -87,9 +101,42 @@ class Storc(TransformerPrimitiveBase[Inputs, Outputs, Hyperparams]):
         sloth = Sloth()
 
         # set number of clusters for k-means
-        nclusters = self.hyperparams['nclusters']
+        if self.hyperparams['algorithm'] == 'TimeSeriesKMeans':
+            # enforce default value
+            if not self.hyperparams['nclusters']:
+                nclusters = 4
+            else:
+                nclusters = self.hyperparams['nclusters']
+            labels = sloth.ClusterSeriesKMeans(inputs.values, nclusters, 'TimeSeriesKMeans')
+        elif self.hyperparams['algorithm'] == 'DBSCAN':
+            # enforce default value
+            if not self.hyperparams['eps']:
+                nclusters = 0.5
+            else:
+                eps = self.hyperparams['eps']
+            if not self.hyperparams['min_samples']:
+                min_samples = 5
+            else:
+                min_samples = self.hyperparams['min_samples']
+                SimilarityMatrix = sloth.GenerateSimilarityMatrix(inputs.values)
+                nclusters, labels, cnt = sloth.ClusterSimilarityMatrix(SimilarityMatrix, eps, min_samples)
+        elif self.hyperparams['algorithm'] == 'HDBSCAN':
+            # enforce default value
+            if not self.hyperparams['min_samples']:
+                min_samples = 5
+            else:
+                min_samples = self.hyperparams['min_samples']
+                SimilarityMatrix = sloth.GenerateSimilarityMatrix(inpust.values)
+                nclusters, labels, cnt = sloth.HClusterSimilarityMatrix(SimilarityMatrix, min_samples)
+        else:
+            # enforce default value
+            if not self.hyperparams['nclusters']:
+                nclusters = 4
+            else:
+                nclusters = self.hyperparams['nclusters']
+            labels = sloth.ClusterSeriesKMeans(inputs.values, nclusters, 'GlobalAlignmentKernelKMeans')       
 
-        labels = sloth.ClusterSeriesKMeans(inputs.values, nclusters)
+        # add metadata to output
         out_df_sloth = pandas.DataFrame(labels)
         out_df_sloth.columns = ['labels']
 
@@ -110,8 +157,20 @@ class Storc(TransformerPrimitiveBase[Inputs, Outputs, Hyperparams]):
         return CallResult(sloth_df)
 
 if __name__ == '__main__':
-    client = Storc(hyperparams={'nclusters':6})
+    # Load data and preprocessing
+    input_dataset = container.Dataset.load('file:///data/home/jgleason/D3m/datasets/seed_datasets_current/66_chlorineConcentration/66_chlorineConcentration_dataset/tables/learningData.csv')
+    ds2df_client = DatasetToDataFrame(hyperparams = {"dataframe_resource":"0"})
+    df = d3m_DataFrame(ds2df_client.produce(inputs = input_dataset).value)    
+    ts_loader = TimeSeriesLoaderPrimitive(hyperparams = {"time_col_index":0, "value_col_index":1,"file_col_index":1})
+    metadata_dict = dict(df.metadata.query_column(ts_loader.hyperparams['file_col_index']))
+    metadata_dict['semantic_types'] = ('https://metadata.datadrivendiscovery.org/types/FileName', 'https://metadata.datadrivendiscovery.org/types/Timeseries')
+    metadata_dict['media_types'] = ('text/csv',)
+    metadata_dict['location_base_uris'] = ('file:///data/home/jgleason/D3m/datasets/seed_datasets_current/66_chlorineConcentration/66_chlorineConcentration_dataset/timeseries/',)
+    df.metadata = df.metadata.update_column(ts_loader.hyperparams['file_col_index'], metadata_dict)
+    ts_values = ts_loader.produce(inputs = df)	    
+
+    #storc_client = Storc(hyperparams={'algorithm':'GlobalAlignmentKernelKMeans','nclusters':4})
+    storc_client = Storc(hyperparams={'algorithm':'DBSCAN','eps':0.5, 'min_samples':5})
     #frame = pandas.read_csv("path/csv_containing_one_series_per_row.csv",dtype=str)
-    frame = CachedDatasets().load_dataset("Trace")
-    result = client.produce(inputs = pandas.DataFrame(frame[0].reshape((100,275))))
-    print(result)
+    result = storc_client.produce(inputs = ts_values.value.head(100))
+    print(result.value)
