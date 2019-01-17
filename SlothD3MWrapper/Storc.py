@@ -2,7 +2,6 @@ import sys
 import os.path
 import numpy as np
 import pandas
-import typing
 
 from Sloth import Sloth
 from tslearn.datasets import CachedDatasets
