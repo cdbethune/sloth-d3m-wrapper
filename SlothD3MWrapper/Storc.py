@@ -85,8 +85,8 @@ class Storc(TransformerPrimitiveBase[Inputs, Outputs, Hyperparams]):
 
     def produce(self, *, inputs: Inputs, timeout: float = None, iterations: int = None) -> CallResult[Outputs]:
         """
-        Produce primitive's best guess for the structural type of each input column.
-
+        Produce primitive's best guess for the cluster number of each series.
+        
         Parameters
         ----------
         inputs : Input pandas frame where each row is a series.  Series timestamps are store in the column names.
