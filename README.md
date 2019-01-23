@@ -1,5 +1,7 @@
 # Sloth D3M Wrapper
-Wrapper of the Sloth clustering primitives (the base Sloth library can be found here: https://github.com/NewKnowledge/sloth) into D3M infrastructure. All code is written in Python 3.5 and must be run in 3.5 or greater. 
+Wrapper of the Sloth clustering primitives into D3M infrastructure. All code is written in Python 3.5 and must be run in 3.5 or greater. 
+
+The base Sloth library can be found here: https://github.com/NewKnowledge/sloth
 
 ## Install
 
