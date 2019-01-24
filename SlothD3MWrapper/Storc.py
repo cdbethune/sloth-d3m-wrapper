@@ -125,7 +125,7 @@ class Storc(TransformerPrimitiveBase[Inputs, Outputs, Hyperparams]):
                 min_samples = 5
             else:
                 min_samples = self.hyperparams['min_samples']
-                SimilarityMatrix = sloth.GenerateSimilarityMatrix(inpust.values)
+                SimilarityMatrix = sloth.GenerateSimilarityMatrix(inputs.values)
                 nclusters, labels, cnt = sloth.HClusterSimilarityMatrix(SimilarityMatrix, min_samples)
         else:
             # enforce default value
