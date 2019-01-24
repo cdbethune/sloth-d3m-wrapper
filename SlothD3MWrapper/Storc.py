@@ -157,7 +157,7 @@ class Storc(TransformerPrimitiveBase[Inputs, Outputs, Hyperparams]):
 
 if __name__ == '__main__':
     # Load data and preprocessing
-    input_dataset = container.Dataset.load('file:///data/home/jgleason/D3m/datasets/seed_datasets_current/66_chlorineConcentration/66_chlorineConcentration_dataset/tables/learningData.csv')
+    input_dataset = container.Dataset.load('file:///data/home/jgleason/D3m/datasets/seed_datasets_current/66_chlorineConcentration/66_chlorineConcentration_dataset/datasetDoc.json')
     ds2df_client = DatasetToDataFrame(hyperparams = {"dataframe_resource":"0"})
     df = d3m_DataFrame(ds2df_client.produce(inputs = input_dataset).value)    
     ts_loader = TimeSeriesLoaderPrimitive(hyperparams = {"time_col_index":0, "value_col_index":1,"file_col_index":1})
