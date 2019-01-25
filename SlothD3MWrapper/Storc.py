@@ -42,6 +42,9 @@ class Hyperparams(hyperparams.Hyperparams):
     pass
 
 class Storc(TransformerPrimitiveBase[Inputs, Outputs, Hyperparams]):
+    """
+        Produce primitive's best guess for the cluster number of each series.
+    """
     metadata = metadata_base.PrimitiveMetadata({
         # Simply an UUID generated once and fixed forever. Generated using "uuid.uuid4()".
         'id': "77bf4b92-2faa-3e38-bb7e-804131243a7f",
@@ -85,8 +88,6 @@ class Storc(TransformerPrimitiveBase[Inputs, Outputs, Hyperparams]):
 
     def produce(self, *, inputs: Inputs, timeout: float = None, iterations: int = None) -> CallResult[Outputs]:
         """
-        Produce primitive's best guess for the cluster number of each series.
-        
         Parameters
         ----------
         inputs : Input pandas frame where each row is a series.  Series timestamps are store in the column names.
